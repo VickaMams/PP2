@@ -1,0 +1,40 @@
+package ru.vickamams.spring.mvc_hibernate_aop.configuration;
+
+import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.web.filter.HiddenHttpMethodFilter;
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
+
+import javax.servlet.FilterRegistration;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
+public class MyWebInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+    // Метод, указывающий на класс конфигурации
+    protected Class<?>[] getRootConfigClasses() {
+        return null;
+    }
+    // Добавление конфигурации, в которой инициализируем ViewResolver, для корректного отображения jsp.
+    protected Class<?>[] getServletConfigClasses() {
+        return new Class[]{MyConfig.class};
+    }
+    /* Данный метод указывает url, на котором будет базироваться приложение */
+    protected String[] getServletMappings() {
+        return new String[]{"/"};
+    }
+
+    @Override
+    public void onStartup(ServletContext servletContext) throws ServletException {
+        super.onStartup(servletContext);
+        FilterRegistration.Dynamic encodingFilter = servletContext.addFilter("encodingFilter", new CharacterEncodingFilter());
+        encodingFilter.setInitParameter("encoding", "UTF-8");
+        encodingFilter.setInitParameter("forceEncoding", "true");
+        encodingFilter.addMappingForUrlPatterns(null, true, "/*");
+        registerHiddenFieldFilter(servletContext);
+    }
+
+    private void registerHiddenFieldFilter(ServletContext aContext) {
+
+        aContext.addFilter("hiddenHttpMethodFilter",
+                new HiddenHttpMethodFilter()).addMappingForUrlPatterns(null ,true, "/*");
+    }
+}
